@@ -10,14 +10,13 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await userModel.findOne({ email: email });
-        console.log("Usuario encontrado para login:");
-        console.log(user);
+        console.log("Usuario encontrado para login: " + email);
         if (!user) {
             console.warn("User doesn't exists with username: " + email);
             return res.status(204).send({ error: "Not found", message: "Usuario no encontrado con username: " + email });
         }
         if (!isValidPassword(user, password)) {
-            console.warn("Invalid credentials for user: " + email);
+            console.warn("Invalid credentials for user: " + user.email);
             return res.status(401).send({ status: "error", error: "El usuario y la contraseña no coinciden!" });
         }
         const tokenUser = {
@@ -42,7 +41,7 @@ router.post("/login", async (req, res) => {
             }
 
         )
-        res.send({ message: "Login success!!" })
+        res.send({ status: "success", message: "Login success!!" })
     } catch (error) {
         console.error(error);
         return res.status(500).send({ status: "error", error: "Error interno de la applicacion." });

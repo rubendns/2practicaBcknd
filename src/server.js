@@ -44,7 +44,7 @@ app.use(
       mongoUrl: `mongodb+srv://rubendns:UZLxn4iAGvcRngUY@cluster0.6lu3kn4.mongodb.net/?retryWrites=true&w=majority`,
     }),
     mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-    ttl: 10 * 60,
+    ttl: 60000,
     secret: "c0d1g0",
     resave: false,
     saveUninitialized: true,
