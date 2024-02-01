@@ -38,7 +38,7 @@ router.get("/",
     // authToken, //-> Usando Authorization Bearer Token
     // passport.authenticate('jwt', { session: false }), //-> Usando JWT por Cookie
     passportCall('jwt'), //-> Usando passport-JWT por Cookie mediante customCall
-    authorization('admin'),
+    authorization('user'),
     (req, res) => {
         res.render("profile", {
             user: req.user

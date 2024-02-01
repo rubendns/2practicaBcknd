@@ -23,8 +23,8 @@ form.addEventListener("submit", (e) => {
     .then((data) => {
       if (data.status === "success") {
         console.log("Cookies generadas:");
-                    console.log(document.cookie);
-                    alert("Login realizado con exito!");
+        console.log(document.cookie);
+        alert("Login realizado con exito!");
         window.location.replace("/products");
       } else {
         alert(data.error || "Invalid credentials");

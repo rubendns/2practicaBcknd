@@ -16,8 +16,11 @@ const schema = new mongoose.Schema({
   username: String,
   password: String,
   loggedBy: String,
-  rol: String
-
+  role: {
+    type: String,
+    default: "user",
+    enum: ["user", "admin"],
+  },
 });
 
 schema.pre("save", async function (next) {

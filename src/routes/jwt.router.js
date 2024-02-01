@@ -1,59 +1,135 @@
-import { Router } from 'express';
+import { Router } from "express";
 import userModel from "../dao/models/user.model.js";
-import passport from 'passport';
-import { isValidPassword } from '../utils.js';
-import { generateJWToken } from '../utils.js';
+import passport from "passport";
+import { isValidPassword } from "../utils.js";
+import { generateJWToken } from "../utils.js";
 
 const router = Router();
+
+router.get(
+    "/github",
+    passport.authenticate("github", { scope: ["user:email"] }),
+    async (req, res) => {}
+);
+
+router.get(
+    "/githubcallback",
+    passport.authenticate("github", {
+        session: false,
+        failureRedirect: "/github/error",
+    }),
+    async (req, res) => {
+        const user = req.user;
+
+        // conJWT
+        const tokenUser = {
+        name: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        age: user.age,
+        role: user.role,
+        };
+        const access_token = generateJWToken(tokenUser);
+        console.log(access_token);
+        res.cookie("jwtCookieToken", access_token, {
+        maxAge: 60000,
+        //httpOnly: true, //No se expone la cookie
+        httpOnly: false //Si se expone la cookie
+        });
+        res.redirect("/users");
+    }
+);
 
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await userModel.findOne({ email: email });
-        console.log("Usuario encontrado para login: " + email);
+        console.log("Usuario encontrado para login:" + email);
+        //console.log(user);
         if (!user) {
-            console.warn("User doesn't exists with username: " + email);
-            return res.status(204).send({ error: "Not found", message: "Usuario no encontrado con username: " + email });
+        console.warn("User doesn't exists with username: " + email);
+        return res
+            .status(204)
+            .send({
+            error: "Not found",
+            message: "Usuario no encontrado con username: " + email,
+            });
         }
         if (!isValidPassword(user, password)) {
-            console.warn("Invalid credentials for user: " + user.email);
-            return res.status(401).send({ status: "error", error: "El usuario y la contraseña no coinciden!" });
+        console.warn("Invalid credentials for user: " + email);
+        return res
+            .status(401)
+            .send({
+            status: "error",
+            error: "El usuario y la contraseña no coinciden!",
+            });
         }
         const tokenUser = {
-            name: `${user.first_name} ${user.last_name}`,
-            email: user.email,
-            age: user.age,
-            role: user.role
+        name: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        age: user.age,
+        role: user.role,
         };
         const access_token = generateJWToken(tokenUser);
-        console.log(access_token);
-        //1ro con LocalStorage
-        // res.send({ message: "Login successful!", jwt: access_token });
-
-
-        // 2do con Cookies
-        res.cookie('jwtCookieToken', access_token,
-            {
-                maxAge: 60000,
-                // httpOnly: true //No se expone la cookie
-                // httpOnly: false //Si se expone la cookie
-
-            }
-
-        )
-        res.send({ status: "success", message: "Login success!!" })
+        //console.log(access_token);
+        res.cookie("jwtCookieToken", access_token, {
+        maxAge: 60000,
+        // httpOnly: true //No se expone la cookie
+        httpOnly: false, //Si se expone la cookie
+        });
+        res.send({ status: "success", message: "Login success!!" });
     } catch (error) {
         console.error(error);
-        return res.status(500).send({ status: "error", error: "Error interno de la applicacion." });
+        return res
+        .status(500)
+        .send({ status: "error", error: "Error interno de la applicacion." });
     }
-
 });
 
-// Register PassportLocal
-router.post('/register', passport.authenticate('register', { session: false }), async (req, res) => {
-    console.log("Registrando usuario:");
-    res.status(201).send({ status: "success", message: "Usuario creado con extito." });
-})
+router.post("/register", async (req, res, next) => {
+    try {
+        const existingUser = await userModel.findOne({ email: req.body.email });
+        if (existingUser) {
+        console.log(`User with email ${req.body.email} already exists.`);
+        return res.redirect("/api/jwt/fail-register");
+        }
+        passport.authenticate("register", {
+        failureRedirect: "/api/jwtfail-register",
+        successRedirect: "/api/jwt/success-register",
+        })(req, res, next);
+    } catch (error) {
+        console.error("Error during registration:", error);
+        res
+        .status(500)
+        .send({ status: "error", message: "Error registering user." });
+    }
+});
 
+router.get("/success-register", (req, res) => {
+    console.log("Registering the following new user:" + req.user.email);
+    res
+        .status(200)
+        .send({ status: "success", message: "User registered successfully." });
+});
+
+router.get("/fail-register", (req, res) => {
+    res.status(401).send({ error: "Failed to process register!" });
+});
+
+router.post("/logout", (req, res) => {
+    const userName =
+        req.session.user && req.session.user.name
+        ? req.session.user.name
+        : "Unknown User";
+    req.session.destroy((err) => {
+        if (err) {
+        console.error("Logout error:", err);
+        return res
+            .status(500)
+            .send({ status: "error", msg: "Internal Server Error" });
+        }
+        console.log(`User ${userName} logged out successfully.`);
+        res.redirect("/users/login");
+    });
+});
 
 export default router;
