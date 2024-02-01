@@ -3,11 +3,15 @@
     <div>
       <div>
         {{#if user}}
-          <h1>Bienvenido {{user.name}}</h1>
-          <h2>Permisos: {{user.rol}}</h2>
-        {{else}}
-          <h1>Bienvenido Invitado</h1>
-        {{/if}}
+  <script>
+    console.log('Usuario en la plantilla:', {{json user}});
+  </script>
+  <h1>Bienvenido {{user.name}}</h1>
+  <h2>Permisos: {{user.role}}</h2>
+{{else}}
+  <h1>Bienvenido Invitado</h1>
+{{/if}}
+
 
         <form action="/api/jwt/logout" method="post">
           <input type="submit" value="Logout" class="btn btn-primary" />

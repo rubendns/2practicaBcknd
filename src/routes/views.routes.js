@@ -69,13 +69,13 @@ viewsRouter.get("/carts/:cid", async (req, res) => {
   });
 });
 
-viewsRouter.get("/logout", (req, res) => {
-  req.session.destroy((error) => {
-    if (error) {
-      res.json({ error: "Error logout", msg: "Error closing session" });
-    }
-    res.send("Session closed correctly!");
-  });
-});
+// viewsRouter.get("/logout", (req, res) => {
+//   req.session.destroy((error) => {
+//     if (error) {
+//       res.json({ error: "Error logout", msg: "Error closing session" });
+//     }
+//     res.send("Session closed correctly!");
+//   });
+// });
 
 export { viewsRouter };

@@ -18,7 +18,7 @@ const initializePassport = () => {
         {
             clientID: "Iv1.84f13a76a9373f39",
             clientSecret: "27d29dce2b2039d59cdc9aacb0ac0705336518cc",
-            callbackURL: "http://localhost:8080/api/sessions/githubcallback",
+            callbackURL: "http://localhost:8080/api/jwt/githubcallback",
         },
         async (accessToken, refreshToken, profile, done) => {
             console.log("Profile obtained from GitHub user:");

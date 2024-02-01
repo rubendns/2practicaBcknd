@@ -23,13 +23,13 @@ router.get(
 
         // conJWT
         const tokenUser = {
-        name: `${user.first_name} ${user.last_name}`,
+       //name: `${user.first_name} ${user.last_name}`,
         email: user.email,
         age: user.age,
         role: user.role,
         };
         const access_token = generateJWToken(tokenUser);
-        console.log(access_token);
+        //console.log(access_token);
         res.cookie("jwtCookieToken", access_token, {
         maxAge: 60000,
         //httpOnly: true, //No se expone la cookie
@@ -43,45 +43,50 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await userModel.findOne({ email: email });
-        console.log("Usuario encontrado para login:" + email);
-        //console.log(user);
+
         if (!user) {
-        console.warn("User doesn't exists with username: " + email);
-        return res
-            .status(204)
-            .send({
-            error: "Not found",
-            message: "Usuario no encontrado con username: " + email,
+            console.warn("User doesn't exist with email: " + email);
+            return res.status(204).send({
+                error: "Not found",
+                message: "User not found with email: " + email,
             });
         }
+
         if (!isValidPassword(user, password)) {
-        console.warn("Invalid credentials for user: " + email);
-        return res
-            .status(401)
-            .send({
-            status: "error",
-            error: "El usuario y la contraseña no coinciden!",
+            console.warn("Invalid credentials for user: " + email);
+            return res.status(401).send({
+                status: "error",
+                error: "Invalid username or password!",
             });
         }
+
         const tokenUser = {
-        name: `${user.first_name} ${user.last_name}`,
-        email: user.email,
-        age: user.age,
-        role: user.role,
+            name: `${user.first_name} ${user.last_name}`,
+            email: user.email,
+            age: user.age,
+            role: user.role,
         };
+
         const access_token = generateJWToken(tokenUser);
-        //console.log(access_token);
+
         res.cookie("jwtCookieToken", access_token, {
-        maxAge: 60000,
-        // httpOnly: true //No se expone la cookie
-        httpOnly: false, //Si se expone la cookie
+            maxAge: 60000,
+            httpOnly: false,
         });
-        res.send({ status: "success", message: "Login success!!" });
+
+        // Incluye la información del usuario en la respuesta
+        res.send({
+            status: "success",
+            message: "Login success!",
+            user: tokenUser,
+        });
+        console.log('Usuario enviado al frontend:', tokenUser);
     } catch (error) {
         console.error(error);
-        return res
-        .status(500)
-        .send({ status: "error", error: "Error interno de la applicacion." });
+        return res.status(500).send({
+            status: "error",
+            error: "Internal application error.",
+        });
     }
 });
 

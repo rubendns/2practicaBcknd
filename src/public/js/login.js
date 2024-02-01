@@ -14,11 +14,22 @@ form.addEventListener("submit", (e) => {
       "Content-Type": "application/json",
     },
   })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+    .then(async (response) => {
+      if (response.status === 204) {
+        throw new Error("Invalid credentials");
       }
-      return response.json();
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`, errorData);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return response.json();
+      } else {
+        return { status: 'success' };
+      }
     })
     .then((data) => {
       if (data.status === "success") {

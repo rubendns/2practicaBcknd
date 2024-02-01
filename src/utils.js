@@ -19,7 +19,7 @@ export const isValidPassword = (user, password) => {
 export const PRIVATE_KEY = "CoderhouseBackendCourseSecretKeyJWT";
 
 export const generateJWToken = (user) => {
-  return jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "60s" });
+  return jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "120s" });
 };
 /**
  * Metodo que autentica el token JWT para nuestros requests.
@@ -64,14 +64,13 @@ export const passportCall = (strategy) => {
           .send({ error: info.messages ? info.messages : info.toString() });
       }
       console.log("Usuario obtenido del strategy: ");
-      console.log(user);
+      console.log(user.email);
       req.user = user;
       next();
     })(req, res, next);
   };
 };
 
-// para manejo de Auth
 export const authorization = (role) => {
   return async (req, res, next) => {
     if (!req.user)
