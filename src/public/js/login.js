@@ -33,10 +33,10 @@ form.addEventListener("submit", (e) => {
     })
     .then((data) => {
       if (data.status === "success") {
-        console.log("Cookies generadas:");
-        console.log(document.cookie);
+        //console.log("Cookies generadas:");
+        //console.log(document.cookie);
         alert("Login realizado con exito!");
-        window.location.replace("/products");
+        window.location.replace("/users");
       } else {
         alert(data.error || "Invalid credentials");
       }

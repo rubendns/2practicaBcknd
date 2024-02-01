@@ -20,10 +20,9 @@ router.get(
     }),
     async (req, res) => {
         const user = req.user;
-
         // conJWT
         const tokenUser = {
-       //name: `${user.first_name} ${user.last_name}`,
+        name: user.username,
         email: user.email,
         age: user.age,
         role: user.role,
@@ -80,7 +79,7 @@ router.post("/login", async (req, res) => {
             message: "Login success!",
             user: tokenUser,
         });
-        console.log('Usuario enviado al frontend:', tokenUser);
+        //console.log('Usuario enviado al frontend:', tokenUser);
     } catch (error) {
         console.error(error);
         return res.status(500).send({

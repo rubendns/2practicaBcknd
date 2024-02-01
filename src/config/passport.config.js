@@ -11,7 +11,7 @@ const JwtStrategy = jwtStrategy.Strategy;
 const ExtractJWT = jwtStrategy.ExtractJwt;
 
 const initializePassport = () => {
-  // Usando estrategia de login con GitHub:
+    // Usando estrategia de login con GitHub:
     passport.use(
         "github",
         new GitHubStrategy(
@@ -21,7 +21,7 @@ const initializePassport = () => {
             callbackURL: "http://localhost:8080/api/jwt/githubcallback",
         },
         async (accessToken, refreshToken, profile, done) => {
-            console.log("Profile obtained from GitHub user:");
+            console.log("Profile obtained from GitHub..");
             //console.log(profile);
             try {
             const user = await userModel.findOne({
@@ -117,17 +117,17 @@ const initializePassport = () => {
         console.error("Error deserializing user: " + error);
         }
     });
-    };
+};
 
-    const cookieExtractor = (req) => {
+const cookieExtractor = (req) => {
     let token = null;
     console.log("Entrando a Cookie Extractor");
     if (req && req.cookies) {
         //Validamos que exista el request y las cookies.
-        console.log("Cookies presentes: ");
+        console.log("Cookies presentes...");
         //console.log(req.cookies);
         token = req.cookies["jwtCookieToken"];
-        console.log("Token obtenido desde Cookie:");
+        console.log("Token obtenido desde Cookie");
         //console.log(token);
     }
     return token;
