@@ -35,7 +35,7 @@ form.addEventListener("submit", (e) => {
       if (data.status === "success") {
         //console.log("Cookies generadas:");
         //console.log(document.cookie);
-        alert("Login realizado con exito!");
+        alert("Login completed successfully!");
         window.location.replace("/users");
       } else {
         alert(data.error || "Invalid credentials");

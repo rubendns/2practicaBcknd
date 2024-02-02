@@ -82,7 +82,7 @@ app.use("/github", githubLoginViewRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/carts", CartsRouter);
 app.get("/failure", (req, res) => {
-  res.status(404).send("Error: Página no encontrada");
+  res.status(404).send("Error: Page not found");
 });
 
 io.on("connection", (socket) => {

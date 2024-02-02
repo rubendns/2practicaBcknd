@@ -13,7 +13,7 @@ function llamarApi() {
         });
         } else if (result.status === 401) {
         console.log(result);
-        alert("Login invalido revisa tus credenciales!");
+        alert("Invalid login check your credentials!");
         }
     });
 }

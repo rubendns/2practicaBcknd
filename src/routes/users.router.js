@@ -2,7 +2,6 @@ import { Router } from "express";
 import userModel from '../dao/models/user.model.js';
 import {authToken} from '../utils.js';
 
-
 const router = Router();
 
 router.get("/:userId", authToken,
@@ -15,9 +14,8 @@ async (req, res) =>{
         }
         res.json(user);
     } catch (error) {
-        console.error("Error consultando el usuario con ID: " + userId);
+        console.error("Error querying user with ID: " + userId);
     }
 });
-
 
 export default router;

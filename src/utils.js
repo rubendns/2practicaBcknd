@@ -21,13 +21,7 @@ export const PRIVATE_KEY = "CoderhouseBackendCourseSecretKeyJWT";
 export const generateJWToken = (user) => {
   return jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "120s" });
 };
-/**
- * Metodo que autentica el token JWT para nuestros requests.
- * OJO: Esto actúa como un middleware, observar el next.
- * @param {*} req Objeto de request
- * @param {*} res Objeto de response
- * @param {*} next Pasar al siguiente evento.
- */
+
 export const authToken = (req, res, next) => {
   //El JWT token se guarda en los headers de autorización.
   const authHeader = req.headers.authorization;
@@ -45,7 +39,7 @@ export const authToken = (req, res, next) => {
       return res.status(403).send({ error: "Token invalid, Unauthorized!" });
     //Token OK
     req.user = credentials.user;
-    console.log("Se extrae la informacion del Token:");
+    console.log("The Token information is extracted:");
     console.log(req.user);
     next();
   });
@@ -54,7 +48,7 @@ export const authToken = (req, res, next) => {
 // para manejo de errores
 export const passportCall = (strategy) => {
   return async (req, res, next) => {
-    console.log("Entrando a llamar strategy: ");
+    console.log("Entering to call strategy: ");
     console.log(strategy);
     passport.authenticate(strategy, function (err, user, info) {
       if (err) return next(err);
@@ -63,7 +57,7 @@ export const passportCall = (strategy) => {
           .status(401)
           .send({ error: info.messages ? info.messages : info.toString() });
       }
-      console.log("Usuario obtenido del strategy: ");
+      console.log("User obtained from the strategy:");
       console.log(user.email);
       req.user = user;
       next();
@@ -79,7 +73,7 @@ export const authorization = (role) => {
     if (req.user.role !== role) {
       return res
         .status(403)
-        .send("Forbidden: El usuario no tiene permisos con este rol.");
+        .send("Forbidden: The user does not have permissions with this role.");
     }
     next();
   };

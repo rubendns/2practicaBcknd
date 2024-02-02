@@ -1,5 +1,8 @@
 import { Router } from "express";
 import cookieParser from 'cookie-parser';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
+import { PRIVATE_KEY } from '../utils.js';
 import productsDao from "../dao/mdbManagers/products.dao.js";
 import cartsDao from "../dao/mdbManagers/carts.dao.js";
 import userModel from "../dao/models/user.model.js";
@@ -18,7 +21,7 @@ function auth(req, res, next) {
   if (req.session.user && req.session.admin) {
       return next();
   } else {
-      return res.status(403).send("Usuario no autorizado para ingresar a este recurso.");
+      return res.status(403).send("User not authorized to enter this resource.");
   }
 }
 
@@ -41,15 +44,31 @@ viewsRouter.get("/chat", (req, res) => {
   });
 });
 
-viewsRouter.get("/products", async (req, res) => {
+viewsRouter.get("/products", passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { page, limit, sort } = req.query;
-  const products = await productsDao.getAllProducts(page, limit, sort);
+  const token = req.cookies.jwtCookieToken;
+  console.log("Authenticated user: ", req.user.name);
+  if (!token) {
+    return res.render('products', { title: 'Products', products: [], user: null });
+  }
 
-  res.render("products", {
-    title: "Products",
-    products,
-    user: req.session.user,
-  });
+  try {
+    const decodedToken = jwt.verify(token, PRIVATE_KEY);
+    const user = decodedToken.user;
+
+    const products = await productsDao.getAllProducts(page, limit, sort);
+
+    res.render("products", {
+      title: "Products",
+      products,
+      userName: user.name,
+      userEmail: user.email,
+      userRole: user.role,
+    });
+
+  } catch (error) {
+    return res.render('products', { title: 'Products', products: [], user: null });
+  }
 });
 
 viewsRouter.get("/carts/", async (req, res) => {

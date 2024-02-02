@@ -11,7 +11,6 @@ const JwtStrategy = jwtStrategy.Strategy;
 const ExtractJWT = jwtStrategy.ExtractJwt;
 
 const initializePassport = () => {
-    // Usando estrategia de login con GitHub:
     passport.use(
         "github",
         new GitHubStrategy(
@@ -65,9 +64,9 @@ const initializePassport = () => {
             secretOrKey: PRIVATE_KEY,
         },
         async (jwt_payload, done) => {
-            console.log("Entrando a passport Strategy con JWT.");
+            console.log("Entering passport Strategy with JWT.");
             try {
-            console.log("JWT obtenido del Payload");
+            //console.log("JWT obtenido del Payload");
             //console.log(jwt_payload);
             return done(null, jwt_payload.user);
             } catch (error) {
@@ -105,7 +104,6 @@ const initializePassport = () => {
         )
     );
 
-    //Funciones de Serializacion y Desserializacion
     passport.serializeUser((user, done) => {
         done(null, user._id);
     });
@@ -121,13 +119,12 @@ const initializePassport = () => {
 
 const cookieExtractor = (req) => {
     let token = null;
-    console.log("Entrando a Cookie Extractor");
+    console.log("Entering Cookie Extractor");
     if (req && req.cookies) {
-        //Validamos que exista el request y las cookies.
-        console.log("Cookies presentes...");
+        console.log("Cookies present...");
         //console.log(req.cookies);
         token = req.cookies["jwtCookieToken"];
-        console.log("Token obtenido desde Cookie");
+        console.log("Token obtained from Cookie");
         //console.log(token);
     }
     return token;

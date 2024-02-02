@@ -1,8 +1,9 @@
 import { Router } from "express";
 import userModel from "../dao/models/user.model.js";
 import passport from "passport";
+import jwt from "jsonwebtoken";
 import { isValidPassword } from "../utils.js";
-import { generateJWToken } from "../utils.js";
+import { generateJWToken, PRIVATE_KEY } from "../utils.js";
 
 const router = Router();
 
@@ -20,7 +21,6 @@ router.get(
     }),
     async (req, res) => {
         const user = req.user;
-        // conJWT
         const tokenUser = {
         name: user.username,
         email: user.email,
@@ -31,8 +31,8 @@ router.get(
         //console.log(access_token);
         res.cookie("jwtCookieToken", access_token, {
         maxAge: 60000,
-        //httpOnly: true, //No se expone la cookie
-        httpOnly: false //Si se expone la cookie
+        httpOnly: true, //No se expone la cookie
+        //httpOnly: false //Si se expone la cookie
         });
         res.redirect("/users");
     }
@@ -73,7 +73,6 @@ router.post("/login", async (req, res) => {
             httpOnly: false,
         });
 
-        // Incluye la información del usuario en la respuesta
         res.send({
             status: "success",
             message: "Login success!",
@@ -120,20 +119,19 @@ router.get("/fail-register", (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-    const userName =
-        req.session.user && req.session.user.name
-        ? req.session.user.name
-        : "Unknown User";
-    req.session.destroy((err) => {
-        if (err) {
-        console.error("Logout error:", err);
-        return res
-            .status(500)
-            .send({ status: "error", msg: "Internal Server Error" });
-        }
-        console.log(`User ${userName} logged out successfully.`);
-        res.redirect("/users/login");
-    });
+    const token = req.cookies.jwtCookieToken;
+
+    if (!token) {
+        return res.redirect("/users/login");
+    }
+    const decodedToken = jwt.verify(token, PRIVATE_KEY);
+    const userName = decodedToken.user.name;
+
+    res.clearCookie("jwtCookieToken");
+
+    console.log(`User ${userName} logged out successfully.`);
+
+    res.redirect("/users/login");
 });
 
 export default router;

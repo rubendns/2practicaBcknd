@@ -1,34 +1,47 @@
 import { Router } from "express";
 import passport from "passport";
-import { authToken } from '../utils.js';
+import jwt from "jsonwebtoken";
+import { PRIVATE_KEY } from "../utils.js";
+import { authToken } from "../utils.js";
 import { passportCall, authorization } from "../utils.js";
 
 const router = Router();
 
 router.get("/login", (req, res) => {
-    res.render("login");
+  res.render("login");
 });
 
 router.get("/register", (req, res) => {
-    res.render("register");
+  res.render("register");
 });
 
-// Endpoint que renderiza la vista del perfil de usuario
-router.get("/",
-    //authToken, //-> Usando Authorization Bearer Token
-    passport.authenticate('jwt', { session: false }), //-> Usando JWT por Cookie
-    //passportCall('jwt'), //-> Usando passport-JWT por Cookie mediante customCall
-    authorization('user'),
-    (req, res) => {
-        res.render("profile", {
-            user: req.user
-        });
+router.get(
+  "/",
+  async (req, res, next) => {
+    const token = req.cookies.jwtCookieToken;
+
+    if (!token) {
+      return res.render("profile", { user: null });
     }
+
+    try {
+      const decodedToken = jwt.verify(token, PRIVATE_KEY);
+      req.user = decodedToken.user;
+      next();
+    } catch (error) {
+      return res.render("profile", { user: null });
+    }
+  },
+  authorization("user"),
+  (req, res) => {
+    res.render("profile", {
+      user: req.user,
+    });
+  }
 );
 
-
 router.get("/error", (req, res) => {
-    res.render("error");
+  res.render("error");
 });
 
 export default router;
